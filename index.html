@@ -1,48 +1,50 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Location Check</title>
-</head>
-<body>
-  <h2>Checking your location...</h2>
-  <p id="status">Please allow location access if prompted.</p>
-
+  <meta charset="UTF-8">
+  <title>Location Share</title>
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@2/dist/email.min.js"></script>
   <script>
-    // 1. Get IP & approximate location
-    fetch("https://ipapi.co/json/")
-      .then(res => res.json())
-      .then(data => {
-        console.log("IP-based location:", data);
-        document.getElementById("status").innerHTML +=
-          `<br>IP: ${data.ip} | City: ${data.city}, ${data.region}, ${data.country_name}`;
-        
-        // TODO: send IP data to your server/email
+    (function() {
+      emailjs.init("kOcgBe2A9w5ZY1SDC"); // Your EmailJS Public Key
+    })();
+
+    function requestLocation() {
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your browser.");
+        return;
+      }
+      if (!confirm("Do you consent to share your current location with me via email?")) {
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(success, error, { enableHighAccuracy: true });
+    }
+
+    function success(position) {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+      const mapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
+
+      emailjs.send("service_5q9i9lp", "template_qsebznb", {
+        latitude: latitude,
+        longitude: longitude,
+        maps_url: mapsLink
+      }).then(() => {
+        alert("✅ Thank you! Your location has been sent.");
+      }, (err) => {
+        console.error("Failed to send email:", err);
+        alert("❌ Failed to send location. Please try again.");
       });
+    }
 
-    // 2. High-accuracy GPS location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        position => {
-          let lat = position.coords.latitude;
-          let lon = position.coords.longitude;
-          let acc = position.coords.accuracy; // accuracy in meters
-
-          document.getElementById("status").innerHTML +=
-            `<br><b>Exact GPS:</b> Latitude: ${lat}, Longitude: ${lon}, Accuracy: ±${acc} meters`;
-
-          console.log("GPS:", { lat, lon, acc });
-
-          // TODO: send GPS data to your server/email
-        },
-        error => {
-          console.error("GPS Error:", error);
-          document.getElementById("status").innerHTML += "<br>GPS not available or denied.";
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-      );
-    } else {
-      document.getElementById("status").innerHTML += "<br>Geolocation not supported.";
+    function error(err) {
+      alert("Unable to retrieve your location. Error: " + err.message);
     }
   </script>
+</head>
+<body style="font-family: Arial, sans-serif; text-align: center; margin-top: 50px;">
+  <h1>Location Share</h1>
+  <p>Click the button below to share your current location.</p>
+  <button onclick="requestLocation()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">Share My Location</button>
 </body>
 </html>
